@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<manifest xmlns="http://tizen.org/ns/packages" api-version="4.0" package="org.tizen.androidaps" version="1.0.0">
+    <author>Philoul</author>
+    <description>Tizen companion app for AndroidAPS</description>
+    <profile name="wearable"/>
+    <ui-application appid="org.tizen.androidaps.app" exec="androidaps" multiple="false" nodisplay="false" taskmanage="true" type="capp">
+        <label>AAPS_P</label>
+        <icon>androidaps.png</icon>
+        <metadata key="accessory-services-location" value="/res/xml/accessoryservices.xml"/>
+        <metadata key="launch-on-attach" value="false"/>
+    </ui-application>
+    <privileges>
+        <privilege>http://developer.samsung.com/tizen/privilege/accessoryprotocol</privilege>
+    </privileges>
+    <feature name="http://tizen.org/feature/screen.size.normal">true</feature>
+    <feature name="http://tizen.org/feature/screen.shape.circle">true</feature>
+</manifest>

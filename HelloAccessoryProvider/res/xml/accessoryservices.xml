@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources>
+	<application name="AndroidapsTizenP">
+		<serviceProfile id="/androidaps/tizen"
+			name="androidaps.tizen"
+			autoLaunchAppId="org.tizen.helloaccessoryprovider" 
+			role="provider"
+			version="1.0">
+			<supportedTransports>
+				<transport type="TRANSPORT_BT" />
+				<transport type="TRANSPORT_WIFI" />
+			</supportedTransports>
+			<serviceChannel id="104" dataRate="low" priority="low" reliability="enable" />
+			<serviceChannel id="105" dataRate="low" priority="low" reliability="enable" />
+			<serviceChannel id="110" dataRate="low" priority="low" reliability="enable" />
+			<serviceChannel id="115" dataRate="low" priority="low" reliability="enable" />
+			<serviceChannel id="120" dataRate="low" priority="low" reliability="enable" />
+			<serviceChannel id="125" dataRate="low" priority="low" reliability="enable" />
+			<serviceChannel id="200" dataRate="low" priority="low" reliability="enable" />
+			<serviceChannel id="205" dataRate="low" priority="low" reliability="enable" />
+			<serviceChannel id="210" dataRate="low" priority="low" reliability="enable" />
+			<serviceChannel id="220" dataRate="low" priority="low" reliability="enable" />
+			<serviceChannel id="225" dataRate="low" priority="low" reliability="enable" />
+			<serviceChannel id="230" dataRate="low" priority="low" reliability="enable" />
+		</serviceProfile>
+	</application>
+</resources>

@@ -1,0 +1,14 @@
+/.gradle/
+/local.properties
+/app_SAAgentV2/build/
+/.idea/
+/.gradle/
+/.idea/
+/app_SAAgent/build/
+*.iml
+/.idea/
+/build/
+/HelloAccessoryProvider/SA_Report/
+/HelloAccessoryProvider/Debug/
+/HelloAccessoryProvider/.sign/
+/HelloAccessoryProvider/Build/
