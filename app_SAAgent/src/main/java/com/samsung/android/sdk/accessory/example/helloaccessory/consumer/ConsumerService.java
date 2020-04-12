@@ -1,26 +1,3 @@
-/*
- * Copyright (c) 2015 Samsung Electronics Co., Ltd. All rights reserved. 
- * Redistribution and use in source and binary forms, with or without modification, are permitted provided that 
- * the following conditions are met:
- * 
- *     * Redistributions of source code must retain the above copyright notice, 
- *       this list of conditions and the following disclaimer. 
- *     * Redistributions in binary form must reproduce the above copyright notice, 
- *       this list of conditions and the following disclaimer in the documentation and/or 
- *       other materials provided with the distribution. 
- *     * Neither the name of Samsung Electronics Co., Ltd. nor the names of its contributors may be used to endorse or 
- *       promote products derived from this software without specific prior written permission.
- * 
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED
- * WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
- * PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY
- * DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
- * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
- * HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
- * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
- * POSSIBILITY OF SUCH DAMAGE.
- */
-
 package com.samsung.android.sdk.accessory.example.helloaccessory.consumer;
 
 import java.io.IOException;
@@ -28,8 +5,10 @@ import java.io.IOException;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.os.Build;
 import android.os.Handler;
 import android.os.Binder;
@@ -39,48 +18,6 @@ import android.util.Log;
 
 import com.samsung.android.sdk.SsdkUnsupportedException;
 import com.samsung.android.sdk.accessory.*;
-
-/**
- * Accessory SDK - Supporting Android O OS
- *
- * According to "Google's official guides", there are background execution limits in Android O.
- * Activity Manager will kill background services in 5 seconds after started by starForegroundService().
- * So, with below codes, you have to change background service to foreground service with notification.
- * You can change those codes to whatever your application needs.
- *
- * If you don't need to keep the service in foreground over 5 seconds,
- * or if you build the project under Android SDK 26, you can erase below codes.
- *
- * Example codes for startForeground() at SAAgent.onCreate().
- * <code>
- *  if (Build.VERSION.SDK_INT >= 26) {
- *      NotificationManager notificationManager = null;
- *      String channel_id = "sample_channel_01";
- *      if(notificationManager == null) {
- *          String channel_name = "Accessory_SDK_Sample";
- *          notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
- *          NotificationChannel notiChannel = new NotificationChannel(channel_id, channel_name, NotificationManager.IMPORTANCE_LOW);
- *          notificationManager.createNotificationChannel(notiChannel);
- *      }
- *
- *      int notifyID = 1;
- *      Notification notification = new Notification.Builder(this.getBaseContext(),channel_id)
- *              .setContentTitle(TAG)
- *              .setContentText("")
- *              .setChannelId(channel_id)
- *              .build();
- *      startForeground(notifyID, notification);
- *  }
- * </code>
- *
- * Example codes for stopForeground() at SAAgent.onDestroy().
- * <code>
- *  if (Build.VERSION.SDK_INT >= 26) {
- *      stopForeground(true);
- *  }
- * </code>
- *
- */
 
 public class ConsumerService extends SAAgent {
     private static final String TAG = "HelloAccessory(C)";
@@ -117,12 +54,6 @@ public class ConsumerService extends SAAgent {
 
     @Override
     public void onDestroy() {
-        /***************************************************
-         * Example codes for Android O OS (stopForeground) *
-         ***************************************************/
-        if (Build.VERSION.SDK_INT >= 26) {
-            stopForeground(true);
-        }
         super.onDestroy();
     }
 
@@ -179,6 +110,7 @@ public class ConsumerService extends SAAgent {
                 if (peers != null) {
                     if (status == SAAgent.PEER_AGENT_AVAILABLE) {
                         Toast.makeText(getApplicationContext(), "PEER_AGENT_AVAILABLE", Toast.LENGTH_LONG).show();
+                        // findpeers added here to have automatic connection on peer agent available if Tizen is enabled in preferences
                         findPeers();
                     } else {
                         Toast.makeText(getApplicationContext(), "PEER_AGENT_UNAVAILABLE", Toast.LENGTH_LONG).show();
@@ -266,6 +198,24 @@ public class ConsumerService extends SAAgent {
         return true;
     }
 
+    @Override
+    public int onStartCommand(Intent intent, int flags, int startId) {
+        String action = intent != null ? intent.getAction() : null;
+
+        // Log.d(TAG, logPrefix + "onStartCommand: " + action);
+        if (mConnectionHandler != null) {
+            if (mConnectionHandler.isConnected()) {
+
+                sendData("Hello Accessory");
+
+            } else { // not sure that line below is usefull or not if not connected try to find peers
+                findPeers();
+            }
+        }
+
+        return START_STICKY;
+    }
+
     private void updateTextView(final String str) {
         mHandler.post(new Runnable() {
             @Override
@@ -284,5 +234,6 @@ public class ConsumerService extends SAAgent {
             }
         });
     }
+
 
 }

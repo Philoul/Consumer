@@ -57,8 +57,8 @@ public class ConsumerActivity extends Activity {
         mMessageListView = (ListView) findViewById(R.id.lvMessage);
         mMessageAdapter = new MessageAdapter();
         mMessageListView.setAdapter(mMessageAdapter);
-        // Bind service
-        mIsBound = bindService(new Intent(ConsumerActivity.this, ConsumerService.class), mConnection, Context.BIND_AUTO_CREATE);
+        // Bind service : line disabled because in my application I'll only launch Bind Service if Tizen is enabled in preferences
+        //mIsBound = bindService(new Intent(ConsumerActivity.this, ConsumerService.class), mConnection, Context.BIND_AUTO_CREATE);
     }
 
     @Override
@@ -80,6 +80,10 @@ public class ConsumerActivity extends Activity {
     public void mOnClick(View v) {
         switch (v.getId()) {
             case R.id.buttonConnect: {
+                if (!mIsBound) { // Bind service put here, because in my application I'll launch service only if Tizen Watch is enabled in preferences
+                    mIsBound = bindService(new Intent(ConsumerActivity.this, ConsumerService.class), mConnection, Context.BIND_AUTO_CREATE);
+                    Toast.makeText(getApplicationContext(), "mIsBound est " + (mIsBound ? "vrai" : "faux") , Toast.LENGTH_LONG).show();
+                }
                 if (mIsBound == true && mConsumerService != null) {
                     mConsumerService.findPeers();
                 }
@@ -92,16 +96,22 @@ public class ConsumerActivity extends Activity {
                         Toast.makeText(getApplicationContext(), R.string.ConnectionAlreadyDisconnected, Toast.LENGTH_LONG).show();
                         mMessageAdapter.clear();
                     }
+
+                    mIsBound=false;
                 }
                 break;
             }
             case R.id.buttonSend: {
+                // In my application messages will be sent threw onStartCommand
+                this.startService(new Intent(this, ConsumerService.class));
+                /*
                 if (mIsBound == true && mConsumerService != null) {
                     if (mConsumerService.sendData("Hello Accessory!")) {
                     } else {
                         Toast.makeText(getApplicationContext(), R.string.ConnectionAlreadyDisconnected, Toast.LENGTH_LONG).show();
                     }
                 }
+                 */
                 break;
             }
             default:
@@ -112,6 +122,7 @@ public class ConsumerActivity extends Activity {
         @Override
         public void onServiceConnected(ComponentName className, IBinder service) {
             mConsumerService = ((ConsumerService.LocalBinder) service).getService();
+            // findPeers added here to have automatic connection on start
             mConsumerService.findPeers();
             updateTextView("onServiceConnected");
         }
