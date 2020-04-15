@@ -45,6 +45,7 @@ public class ConsumerService extends SAAgent {
             e1.printStackTrace();
             stopSelf();
         }
+        findPeers();
     }
 
     @Override
@@ -204,12 +205,11 @@ public class ConsumerService extends SAAgent {
 
         // Log.d(TAG, logPrefix + "onStartCommand: " + action);
         if (mConnectionHandler != null) {
-            if (mConnectionHandler.isConnected()) {
-
-                sendData("Hello Accessory");
-
-            } else { // not sure that line below is usefull or not if not connected try to find peers
+            if (! mConnectionHandler.isConnected()) {
                 findPeers();
+            }
+            if (mConnectionHandler.isConnected()) {
+                sendData("Hello Accessory");
             }
         }
 

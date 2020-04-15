@@ -45,9 +45,8 @@ import android.widget.Toast;
 public class ConsumerActivity extends Activity {
     private static TextView mTextView;
     private static MessageAdapter mMessageAdapter;
-    private boolean mIsBound = false;
     private ListView mMessageListView;
-    private ConsumerService mConsumerService = null;
+    public boolean isEnabled = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -63,77 +62,28 @@ public class ConsumerActivity extends Activity {
 
     @Override
     protected void onDestroy() {
-        // Clean up connections
-        if (mIsBound == true && mConsumerService != null) {
-            if (mConsumerService.closeConnection() == false) {
-                updateTextView("Disconnected");
-                mMessageAdapter.clear();
-            }
-        }
-        // Un-bind service
-        if (mIsBound) {
-            unbindService(mConnection);
-        }
         super.onDestroy();
     }
 
     public void mOnClick(View v) {
         switch (v.getId()) {
             case R.id.buttonConnect: {
-                if (!mIsBound) { // Bind service put here, because in my application I'll launch service only if Tizen Watch is enabled in preferences
-                    mIsBound = bindService(new Intent(ConsumerActivity.this, ConsumerService.class), mConnection, Context.BIND_AUTO_CREATE);
-                    Toast.makeText(getApplicationContext(), "mIsBound est " + (mIsBound ? "vrai" : "faux") , Toast.LENGTH_LONG).show();
-                }
-                if (mIsBound == true && mConsumerService != null) {
-                    mConsumerService.findPeers();
-                }
+                isEnabled=true;
                 break;
             }
             case R.id.buttonDisconnect: {
-                if (mIsBound == true && mConsumerService != null) {
-                    if (mConsumerService.closeConnection() == false) {
-                        updateTextView("Disconnected");
-                        Toast.makeText(getApplicationContext(), R.string.ConnectionAlreadyDisconnected, Toast.LENGTH_LONG).show();
-                        mMessageAdapter.clear();
-                    }
-
-                    mIsBound=false;
-                }
+                isEnabled=false;
                 break;
             }
             case R.id.buttonSend: {
                 // In my application messages will be sent threw onStartCommand
                 this.startService(new Intent(this, ConsumerService.class));
-                /*
-                if (mIsBound == true && mConsumerService != null) {
-                    if (mConsumerService.sendData("Hello Accessory!")) {
-                    } else {
-                        Toast.makeText(getApplicationContext(), R.string.ConnectionAlreadyDisconnected, Toast.LENGTH_LONG).show();
-                    }
-                }
-                 */
+
                 break;
             }
             default:
         }
     }
-
-    private final ServiceConnection mConnection = new ServiceConnection() {
-        @Override
-        public void onServiceConnected(ComponentName className, IBinder service) {
-            mConsumerService = ((ConsumerService.LocalBinder) service).getService();
-            // findPeers added here to have automatic connection on start
-            mConsumerService.findPeers();
-            updateTextView("onServiceConnected");
-        }
-
-        @Override
-        public void onServiceDisconnected(ComponentName className) {
-            mConsumerService = null;
-            mIsBound = false;
-            updateTextView("onServiceDisconnected");
-        }
-    };
 
     public static void addMessage(String data) {
         mMessageAdapter.addMessage(new Message(data));
